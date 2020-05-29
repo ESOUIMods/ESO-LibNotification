@@ -1,16 +1,14 @@
-local MAJOR, MINOR = "LibNotifications", 999 -- only for test purposes. releases will get a smaller number
-assert(not _G[MAJOR], MAJOR .. " is already loaded")
-
-local libNotification
-if(LibStub) then
-    --Register LN with LibStub
-    libNotification  = LibStub:NewLibrary(MAJOR, MINOR)
-    if not libNotification then return end --the same or newer version of this lib is already loaded into memory
+local libName, libVersion = "LibNotifications", 9
+local lib, oldminor
+if(not LibStub) then
+    lib = {}
 else
-    libNotification = {}
+    lib, oldminor = LibStub:NewLibrary(libName, libVersion)
+    if not lib then
+        return -- already loaded and no upgrade necessary
+    end
 end
-_G[MAJOR] = libNotification
-LibNotification = libNotification
+if not lib then return end
 
 local KEYBOARD_NOTIFICATION_ICONS = ZO_KEYBOARD_NOTIFICATION_ICONS
 local GAMEPAD_NOTIFICATION_ICONS = ZO_GAMEPAD_NOTIFICATION_ICONS
@@ -124,7 +122,7 @@ end
 --=============================================================--
 --=== LIBRARY FUNCTIONS ===--
 --=============================================================--
-function libNotification:CreateProvider()
+function lib:CreateProvider()
     local keyboardProvider = libNotificationKeyboardProvider:New(NOTIFICATIONS)
     local gamepadProvider  = libNotificationGamepadProvider:New(GAMEPAD_NOTIFICATIONS)
 
@@ -142,3 +140,5 @@ function libNotification:CreateProvider()
 
     return provider
 end
+
+LibNotifications = lib
